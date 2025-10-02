@@ -2,8 +2,8 @@ dependencies {
     annotationProcessor(libs.lombok)
 
     // Dependencies
-    api project(':core')
-    api project(':be-core')
+    api project(':framework:core')
+    api project(':framework:be-core')
 
     // Lombok
     compileOnly(libs.lombok)

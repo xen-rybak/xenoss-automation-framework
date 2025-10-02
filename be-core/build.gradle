@@ -2,7 +2,7 @@ dependencies {
     annotationProcessor(libs.lombok)
 
     // Core dependency
-    api project(':core')
+    api project(':framework:core')
 
     // BE-specific dependencies
     api(libs.okhttp)
