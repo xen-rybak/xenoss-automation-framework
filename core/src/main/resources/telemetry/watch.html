@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tests Telemetry Dashboard</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            margin: 0;
+        }
+        h1 { 
+            color: #fff; 
+            text-align: center; 
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        
+        #telemetry { 
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .metric-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .section-header {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #007ACC;
+            color: #007ACC;
+        }
+        
+        .kv { 
+            margin-bottom: 12px; 
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .kv:last-child {
+            border-bottom: none;
+        }
+        
+        .key { 
+            font-weight: 600; 
+            width: 280px;
+            color: #555;
+            font-size: 0.95em;
+        }
+        
+        .value {
+            color: #2c5aa0;
+            font-weight: 500;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .separator {
+            text-align: center;
+            color: #007ACC;
+            font-size: 0.9em;
+            margin: 5px 0;
+            letter-spacing: 2px;
+        }
+        
+        .status {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1.1em;
+        }
+        
+        /* Responsive design */
+        @media (min-width: 768px) {
+            #telemetry {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        /* Loading animation */
+        .loading {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+<h1>🚀 Real-time Tests Telemetry Dashboard</h1>
+<div id="telemetry">
+    <div class="status loading">🔌 Connecting to telemetry stream...</div>
+</div>
+
+<script>
+    const ws = new WebSocket("ws://localhost:{{WS_PORT}}");
+    const telemetryDiv = document.getElementById("telemetry");
+
+    ws.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        telemetryDiv.innerHTML = "";
+        
+        let systemSection = null;
+        let testSection = null;
+        let currentSection = null;
+        
+        for (const key in data) {
+            const value = data[key];
+            
+            // Check if this is a section header
+            if (key.includes("SYSTEM METRICS")) {
+                systemSection = createSection("📊 System Metrics");
+                telemetryDiv.appendChild(systemSection);
+                currentSection = systemSection;
+                continue;
+            } else if (key.includes("TEST METRICS")) {
+                testSection = createSection("🧪 Test Metrics");
+                telemetryDiv.appendChild(testSection);
+                currentSection = testSection;
+                continue;
+            }
+            
+            // Skip separator lines
+            if (value.includes("━")) {
+                continue;
+            }
+            
+            // Add metric to current section
+            if (currentSection) {
+                const metricDiv = document.createElement("div");
+                metricDiv.className = "kv";
+                metricDiv.innerHTML = `
+                    <span class="key">${key}</span>
+                    <span class="value">${value}</span>
+                `;
+                currentSection.appendChild(metricDiv);
+            }
+        }
+        
+        // If no sections were created, create a general section
+        if (!systemSection && !testSection) {
+            const generalSection = createSection("📊 Telemetry Data");
+            telemetryDiv.appendChild(generalSection);
+            
+            for (const key in data) {
+                const metricDiv = document.createElement("div");
+                metricDiv.className = "kv";
+                metricDiv.innerHTML = `
+                    <span class="key">${key}</span>
+                    <span class="value">${data[key]}</span>
+                `;
+                generalSection.appendChild(metricDiv);
+            }
+        }
+    };
+
+    ws.onerror = () => {
+        telemetryDiv.innerHTML = '<div class="status">❌ WebSocket connection failed. Please check if the server is running.</div>';
+    };
+    
+    ws.onopen = () => {
+        console.log("✅ Connected to telemetry stream");
+    };
+    
+    ws.onclose = () => {
+        telemetryDiv.innerHTML = '<div class="status">🔌 Connection closed. Refresh to reconnect.</div>';
+    };
+    
+    function createSection(title) {
+        const section = document.createElement("div");
+        section.className = "metric-section";
+        
+        const header = document.createElement("div");
+        header.className = "section-header";
+        header.textContent = title;
+        section.appendChild(header);
+        
+        return section;
+    }
+</script>
+</body>
+</html>

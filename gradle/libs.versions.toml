@@ -1,0 +1,56 @@
+[versions]
+javaVersion = "21"
+okhttp = "4.12.0"
+testng = "7.10.2"
+slf4j = "2.0.13"
+logback = "1.5.18"
+# Development Tools
+lombok = "1.18.32"
+lombok-plugin = "8.6"
+checkstyle = "10.18.2"
+pmd = "7.6.0"
+spotbugsTool = "4.9.0"
+spotbugs-plugin = "6.0.7"
+test-retry = "1.5.8"
+assertj = "3.25.3"
+yaml = "2.2"
+gson = "2.10.1"
+jsoup = "1.18.1"
+jackson = "2.17.2"
+guava = "33.2.1-jre"
+playwright = "1.43.0"
+awailability = "4.2.1"
+reportportal-agent = "5.4.2"
+reportportal-logger = "5.2.2"
+java-websocket = "1.6.0"
+commons-lang3 = "3.18.0"
+
+[plugins]
+lombok = { id = "io.freefair.lombok", version.ref = "lombok-plugin" }
+test-retry = { id = "org.gradle.test-retry", version.ref = "test-retry" }
+spotbugs = { id = "com.github.spotbugs", version.ref = "spotbugs-plugin" }
+checkstyle = { id = "checkstyle", version.ref = "checkstyle" }
+pmd = { id = "pmd", version.ref = "pmd" }
+
+[libraries]
+lombok = { group = "org.projectlombok", name = "lombok", version.ref = "lombok" }
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
+jackson-core = { group = "com.fasterxml.jackson.core", name = "jackson-core", version.ref = "jackson" }
+jackson-databind = { group = "com.fasterxml.jackson.core", name = "jackson-databind", version.ref = "jackson" }
+jackson-annotations = { group = "com.fasterxml.jackson.core", name = "jackson-annotations", version.ref = "jackson" }
+jackson-dataformat-xml = { group = "com.fasterxml.jackson.dataformat", name = "jackson-dataformat-xml", version.ref = "jackson" }
+testng = { group = "org.testng", name = "testng", version.ref = "testng" }
+slf4j-api = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
+logback-classic = { group = "ch.qos.logback", name = "logback-classic", version.ref = "logback" }
+assertj-core = { group = 'org.assertj', name = 'assertj-core', version.ref = "assertj" }
+yaml = { group = "org.yaml", name = "snakeyaml", version.ref = "yaml" }
+gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
+jsoup = { group = "org.jsoup", name = "jsoup", version.ref = "jsoup" }
+guava = { group = "com.google.guava", name = "guava", version.ref = "guava" }
+playwright = { group = "com.microsoft.playwright", name = "playwright", version.ref = "playwright" }
+awailability = { group = "org.awaitility", name = "awaitility", version.ref = "awailability" }
+reportportal-agent = { group = "com.epam.reportportal", name = "agent-java-testng", version.ref = "reportportal-agent" }
+reportportal-logger = { group = "com.epam.reportportal", name = "logger-java-logback", version.ref = "reportportal-logger" }
+java-websocket = { group = "org.java-websocket", name = "Java-WebSocket", version.ref = "java-websocket" }
+commons-lang3 = { group = "org.apache.commons", name = "commons-lang3", version.ref = "commons-lang3" }

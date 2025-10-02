@@ -1,0 +1,107 @@
+import com.github.spotbugs.snom.Effort
+import com.github.spotbugs.snom.SpotBugsTask
+
+plugins {
+    id 'java'
+    alias(libs.plugins.lombok) apply false
+    alias(libs.plugins.spotbugs) apply false
+    alias(libs.plugins.test.retry) apply false
+}
+
+allprojects {
+    group = 'io.xenoss'
+    version = '1.0.0'
+
+    repositories {
+        mavenCentral()
+    }
+}
+
+subprojects {
+    apply plugin: 'java-library'
+    apply plugin: 'io.freefair.lombok'
+
+    // Apply static analysis and style plugins to all subprojects
+    apply plugin: 'checkstyle'
+    apply plugin: 'pmd'
+    apply plugin: 'com.github.spotbugs'
+
+    def javaVersion = JavaVersion.toVersion(libs.versions.javaVersion.get())
+    java {
+        sourceCompatibility = javaVersion
+        targetCompatibility = javaVersion
+    }
+
+    dependencies {
+        compileOnly libs.lombok
+        annotationProcessor libs.lombok
+    }
+
+    test {
+        useTestNG()
+        testLogging {
+            events "passed", "skipped", "failed"
+        }
+    }
+
+    // Configure Checkstyle
+    checkstyle {
+        toolVersion = libs.versions.checkstyle.get()
+        configFile = rootProject.file('config/checkstyle/checkstyle.xml')
+        ignoreFailures = false
+    }
+
+    // Configure PMD
+    pmd {
+        toolVersion = libs.versions.pmd.get()
+        ruleSetFiles = files(rootProject.file('config/pmd/ruleset.xml'))
+        ignoreFailures = false
+    }
+
+    // Configure SpotBugs
+    spotbugs {
+        toolVersion = libs.versions.spotbugsTool.get()
+        effort = Effort.MAX
+        ignoreFailures = false
+        excludeFilter = rootProject.file('config/spotbugs/excludeFilter.xml')
+    }
+
+    // Configure reports for plugin tasks
+    tasks.withType(Checkstyle).configureEach {
+        reports {
+            xml.required = false
+            html.required = true
+            // use provider-based build-directory access to avoid deprecated 'buildDir' usage
+            html.outputLocation = layout.buildDirectory.file("reports/checkstyle/${project.name}.html").get().asFile
+        }
+    }
+
+    tasks.withType(Pmd).configureEach {
+        reports {
+            xml.required = false
+            html.required = true
+            // use provider-based build-directory access to avoid deprecated 'buildDir' usage
+            html.outputLocation = layout.buildDirectory.file("reports/pmd/${project.name}.html").get().asFile
+        }
+    }
+
+    // SpotBugs task class is provided by the plugin; configure if available
+    tasks.withType(SpotBugsTask).configureEach {
+        reports {
+            xml.required = false
+            html.required = true
+            // use provider-based build-directory access to avoid deprecated 'buildDir' usage
+            html.outputLocation = layout.buildDirectory.file("reports/spotbugs/${project.name}.html").get().asFile
+        }
+    }
+
+    // Ensure check task depends on the static analysis tasks
+    tasks.named('check') {
+        dependsOn tasks.matching { it.name.startsWith('checkstyle') || it.name.startsWith('pmd') || it.name.startsWith('spotbugs') }
+    }
+}
+
+tasks.register('cleanAll') {
+    dependsOn subprojects.collect { it.tasks.clean }
+    description = 'Clean all subprojects'
+}

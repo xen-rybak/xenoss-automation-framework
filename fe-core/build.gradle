@@ -1,0 +1,12 @@
+dependencies {
+    annotationProcessor(libs.lombok)
+
+    // Core dependency
+    api project(':core')
+
+    // FE-specific dependencies
+    api(libs.playwright)
+
+    // Lombok
+    compileOnly(libs.lombok)
+}

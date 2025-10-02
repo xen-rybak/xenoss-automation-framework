@@ -1,0 +1,6 @@
+rootProject.name = 'x-automation-framework'
+
+include 'core'
+include 'be-core'
+include 'be-dsp'
+include 'fe-core'

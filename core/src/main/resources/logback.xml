@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="RP" class="com.epam.reportportal.logback.appender.ReportPortalAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%t] %-5level - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%cyan(%d{HH:mm:ss.SSS}) [%thread] %highlight(%-5level) %yellow(%-30C{0}): %msg %n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="io.xenoss" level="INFO"/>
+    <logger name="com.epam" level="INFO"/>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="RP"/>
+    </root>
+</configuration>

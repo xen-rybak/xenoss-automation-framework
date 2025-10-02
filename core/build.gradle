@@ -1,0 +1,30 @@
+plugins {
+    id 'java-library'
+    id 'io.freefair.lombok' version '8.6'
+}
+
+dependencies {
+    // Core dependencies
+    api libs.testng
+    api libs.slf4j.api
+    api libs.logback.classic
+    api libs.assertj.core
+    api libs.yaml
+    api libs.gson
+    api libs.jackson.core
+    api libs.jackson.databind
+    api libs.jackson.annotations
+    api libs.jackson.dataformat.xml
+    api libs.guava
+    api libs.awailability
+    api libs.reportportal.agent
+    api libs.reportportal.logger
+    api libs.java.websocket
+    api libs.commons.lang3
+
+    // JetBrains annotations
+    api 'org.jetbrains:annotations:24.0.1'
+
+    // Lombok
+    compileOnly(libs.lombok)
+}

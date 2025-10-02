@@ -1,0 +1,53 @@
+
+################################################################################################
+##                              SERVICE SPECIFIC CONFIGS BEGIN                                ##
+################################################################################################
+
+environment: dev
+uiActionTimeoutSeconds: 15
+isHeadless: false
+isSilent: false
+
+# Telemetry settings
+threadPoolSize: 15
+startTelemetryServer: true
+telemetryHttpPort: 8080
+telemetryWsPort: 8090
+
+environments:
+  dev:
+    customerSiteUrl: ""
+    missionControlUrl: "https://account-dev.xenoss.io"
+    dspUrl: "https://dsp-api-dev.xenoss.io"
+    cdnUrl: "https://cdn-dev.xenoss.io"
+    bidderUrl: "http://bidders-asg-dev.xenoss.io"
+    audienceUrl: "https://audience-dev.xenoss.io"
+    internalEventTrackerUrl: "https://bidders-asg-dev.xenoss.io"   # custom events (prior to click, e.g. 50% video)
+    externalEventTrackerUrl: "https://bidders-asg-dev.xenoss.io" # MMP events from apps-flyer and so on
+    reporterUrl: "https://reporter-dev.xenoss.io"
+    organizationId: "DFLT"
+    accountId: "DFLT"
+    defaultUser: ""
+    defaultPassword: ""
+    smtpServerRestApiUrl: "https://smtp4dev-dev.xenoss.io/smtp4dev/api"
+    smtpServerUserName: "admin"
+    smtpServerPassword: "admin"
+
+  stage:
+    customerSiteUrl: ""
+    missionControlUrl: "https://account-stage.xenoss.io"
+    dspUrl: "https://dsp-api-stage.xenoss.io"
+    cdnUrl: "https://cdn-stage.xenoss.io"
+    bidderUrl: "http://bidders-asg-stage.xenoss.io"
+    audienceUrl: "https://audience-stage.xenoss.io"
+    internalEventTrackerUrl: "https://bidders-asg-stage.xenoss.io"
+    externalEventTrackerUrl: "https://bidders-asg-stage.xenoss.io"
+    reporterUrl: "https://reporter-stage.xenoss.io"
+    organizationId: "DFLT"
+    accountId: "DFLT"
+    defaultUser: ""
+    defaultPassword: ""
+    smtpServerRestApiUrl: ""
+    smtpServerUserName: "admin"
+    smtpServerPassword: "admin"
+

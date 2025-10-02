@@ -1,0 +1,14 @@
+dependencies {
+    annotationProcessor(libs.lombok)
+
+    // Core dependency
+    api project(':core')
+
+    // BE-specific dependencies
+    api(libs.okhttp)
+    api(libs.okhttp.logging)
+    api(libs.jsoup)
+
+    // Lombok
+    compileOnly(libs.lombok)
+}
