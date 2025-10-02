@@ -1,4 +1,4 @@
-rootProject.name = 'x-automation-framework'
+rootProject.name = 'xenoss-automation-framework'
 
 include 'core'
 include 'be-core'
