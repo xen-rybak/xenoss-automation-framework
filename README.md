@@ -174,3 +174,27 @@ For issues and questions:
 - Check the troubleshooting section
 - Review test logs and reports
 - Contact the development team
+
+
+## Git flows
+- To include into the project as a subtree:
+    ```bash
+    # Add the framework repo as subtree under a folder (e.g. "framework")
+    git remote add framework git@github.com:xen-rybak/xenoss-automation-framework.git
+    
+    # Fetch it
+    git fetch framework
+    
+    # Pull it into your repo under the "framework" folder
+    git subtree add --prefix=framework framework main --squash
+    ```
+- To update the subtree from the framework repo:
+    ```bash
+    git fetch framework
+    git subtree pull --prefix=framework framework main --squash
+    ```
+
+- To contribute from child project back to the framework repo:
+    ```bash
+    git subtree push --prefix=framework framework main
+    ```
