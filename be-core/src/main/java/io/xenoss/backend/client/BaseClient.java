@@ -42,49 +42,24 @@ public abstract class BaseClient {
                                                               .getIsSilent();
     private static final String RESULTS_DIR_PATH = String.format("build/reports/rawTestsOutput/%s", RandomUtils.currentTimestamp());
 
-    // Logging
-    private static final ThreadLocal<String> prevRequest = new ThreadLocal<>();
-    private static final ThreadLocal<String> prevResponseMessage = new ThreadLocal<>();
-    private static final ThreadLocal<Integer> prevResponseStatus = new ThreadLocal<>();
+    // Logging (ThreadLocal variables that need cleanup)
+    private static final ThreadLocal<String> prevRequest = ThreadLocal.withInitial(() -> null);
+    private static final ThreadLocal<String> prevResponseMessage = ThreadLocal.withInitial(() -> null);
+    private static final ThreadLocal<Integer> prevResponseStatus = ThreadLocal.withInitial(() -> null);
 
-    private final ThreadLocal<OkHttpClient> httpClient = new ThreadLocal<>();
+    private final ThreadLocal<OkHttpClient> httpClient = ThreadLocal.withInitial(() -> null);
     private final Supplier<RequestSpecification> requestSpecification;
     private final String baseUrl;
 
     private final boolean gzip;
     private final Headers headers;
 
+    // Telemetry task management
+    private static volatile ThreadingUtils.TaskInfo<Void> telemetryTask = null;
+    private static final Object telemetryLock = new Object();
+
     static {
         FileUtils.makeDir(RESULTS_DIR_PATH);
-    }
-
-    static {
-        ThreadingUtils.startAsync(() -> {
-            WaitUtils.forSeconds(1);
-
-            // System telemetry with detailed connection metrics
-            Map<String, String> systemMetrics = new java.util.LinkedHashMap<>();
-            systemMetrics.put("🌐 HTTP Client", "OkHttp v4.12.0");
-            systemMetrics.put("🏊 Max Connection Pool Size", String.valueOf(MAX_THREADS));
-            systemMetrics.put("🔧 GZIP Enabled", "Auto-negotiated");
-
-            // Add connection pool metrics
-            systemMetrics.putAll(ConnectionPoolMetrics.getMetrics());
-
-            // Runtime information
-            Runtime runtime = Runtime.getRuntime();
-            long totalMemory = runtime.totalMemory();
-            long freeMemory = runtime.freeMemory();
-            long usedMemory = totalMemory - freeMemory;
-
-            systemMetrics.put("💾 Memory Used", String.format("%.1f MB", usedMemory / 1024.0 / 1024.0));
-            systemMetrics.put("💽 Memory Total", String.format("%.1f MB", totalMemory / 1024.0 / 1024.0));
-            systemMetrics.put("⚡ Available Processors", String.valueOf(runtime.availableProcessors()));
-
-            TelemetryData.updateSystemMetrics(systemMetrics);
-
-            return null;
-        }, "BaseClient-Telemetry", true);
     }
 
 
@@ -159,10 +134,11 @@ public abstract class BaseClient {
 
     /**
      * Returns the current request specification, thread-safe.
+     * No synchronization needed as Supplier.get() is stateless and thread-safe.
      *
      * @return the current RequestSpecification
      */
-    private synchronized RequestSpecification getRequestSpecification() {
+    private RequestSpecification getRequestSpecification() {
         return requestSpecification.get();
     }
 
@@ -176,6 +152,78 @@ public abstract class BaseClient {
             httpClient.set(HttpClientFactory.createHttpClient());
         }
         return httpClient.get();
+    }
+
+    /**
+     * Static method to clean up static ThreadLocal variables.
+     * Call this in @AfterClass or @AfterSuite if multiple BaseClient instances share threads.
+     */
+    public static void cleanupStaticThreadLocals() {
+        prevRequest.remove();
+        prevResponseMessage.remove();
+        prevResponseStatus.remove();
+    }
+
+    /**
+     * Starts the telemetry monitoring task if not already running.
+     * This method is idempotent - calling it multiple times has no effect.
+     * Call this in @BeforeSuite to enable telemetry monitoring.
+     */
+    public static void startTelemetryMonitoring() {
+        synchronized (telemetryLock) {
+            if (telemetryTask != null) {
+                log.debug("Telemetry monitoring already running");
+                return;
+            }
+
+            log.info("Starting telemetry monitoring...");
+            telemetryTask = ThreadingUtils.startAsync(() -> {
+                while (!Thread.currentThread().isInterrupted()) {
+                    try {
+                        WaitUtils.forSeconds(1);
+
+                        // System telemetry with detailed connection metrics
+                        Map<String, String> systemMetrics = new java.util.LinkedHashMap<>();
+                        systemMetrics.put("🌐 HTTP Client", "OkHttp v4.12.0");
+                        systemMetrics.put("🏊 Max Connection Pool Size", String.valueOf(MAX_THREADS));
+                        systemMetrics.put("🔧 GZIP Enabled", "Auto-negotiated");
+
+                        // Add connection pool metrics
+                        systemMetrics.putAll(ConnectionPoolMetrics.getMetrics());
+
+                        // Runtime information
+                        Runtime runtime = Runtime.getRuntime();
+                        long totalMemory = runtime.totalMemory();
+                        long freeMemory = runtime.freeMemory();
+                        long usedMemory = totalMemory - freeMemory;
+
+                        systemMetrics.put("💾 Memory Used", String.format("%.1f MB", usedMemory / 1024.0 / 1024.0));
+                        systemMetrics.put("💽 Memory Total", String.format("%.1f MB", totalMemory / 1024.0 / 1024.0));
+                        systemMetrics.put("⚡ Available Processors", String.valueOf(runtime.availableProcessors()));
+
+                        TelemetryData.updateSystemMetrics(systemMetrics);
+                    } catch (Exception e) {
+                        // Catch any exception to prevent task termination
+                        log.warn("Error updating telemetry metrics", e);
+                    }
+                }
+                return null;
+            }, "BaseClient-Telemetry", true);
+        }
+    }
+
+    /**
+     * Stops the telemetry monitoring task if running.
+     * Call this in @AfterSuite to clean up resources.
+     */
+    public static void stopTelemetryMonitoring() {
+        synchronized (telemetryLock) {
+            if (telemetryTask != null) {
+                log.info("Stopping telemetry monitoring...");
+                telemetryTask.terminate();
+                telemetryTask = null;
+            }
+        }
     }
 
     /**

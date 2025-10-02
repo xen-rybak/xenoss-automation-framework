@@ -2,6 +2,8 @@ package io.xenoss.http;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.xenoss.exceptions.HttpClientException;
+import io.xenoss.exceptions.ResponseParsingException;
 import io.xenoss.utils.SerializationUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -53,7 +55,7 @@ public class Response {
             this.responseBody = response.body() != null ? response.body()
                                                                   .string() : "";
         } catch (IOException e) {
-            throw new RuntimeException("Failed to read response body", e);
+            throw new HttpClientException("Failed to read response body", e);
         }
     }
 
@@ -88,7 +90,7 @@ public class Response {
             }
             return SerializationUtils.fromJson(responseBody, clazz);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to deserialize response to " + clazz.getSimpleName() +
+            throw new ResponseParsingException("Failed to deserialize response to " + clazz.getSimpleName() +
                     ". Response body: " + responseBody, e);
         }
     }
@@ -108,7 +110,7 @@ public class Response {
             }
             return objectMapper.readValue(responseBody, typeRef);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to deserialize response to " + typeRef.getType() +
+            throw new ResponseParsingException("Failed to deserialize response to " + typeRef.getType() +
                     ". Response body: " + responseBody, e);
         }
     }

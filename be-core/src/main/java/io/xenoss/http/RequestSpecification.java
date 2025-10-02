@@ -1,6 +1,7 @@
 package io.xenoss.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.xenoss.exceptions.HttpClientException;
 import io.xenoss.utils.SerializationUtils;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.HttpUrl;
@@ -218,7 +219,7 @@ public class RequestSpecification {
             okhttp3.Response okHttpResponse = requestExecutor.call();
             return new Response(okHttpResponse, objectMapper);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to execute HTTP request", e);
+            throw new HttpClientException("Failed to execute HTTP request", e);
         }
     }
 

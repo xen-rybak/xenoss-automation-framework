@@ -21,15 +21,53 @@ public abstract class BasePage implements ContainElements {
     }
 
     public Locator getElementByTestId(String tagName, String testId) {
-        return getElement("//" + tagName + "[@data-testid='" + testId + "']");
+        // Escape single quotes to prevent XPath injection
+        String escapedTestId = escapeXPathString(testId);
+        return getElement("//" + tagName + "[@data-testid=" + escapedTestId + "]");
     }
 
     public Locator getElementByText(String tagName, String text) {
-        return getElement("//" + tagName + "[contains(text(), '" + text + "')]");
+        // Escape single quotes to prevent XPath injection
+        String escapedText = escapeXPathString(text);
+        return getElement("//" + tagName + "[contains(text(), " + escapedText + ")]");
     }
 
     public Locator getElementByContainsId(String tagName, String text) {
-        return getElement("//" + tagName + "[contains(@id, '" + text + "')]");
+        // Escape single quotes to prevent XPath injection
+        String escapedText = escapeXPathString(text);
+        return getElement("//" + tagName + "[contains(@id, " + escapedText + ")]");
+    }
+
+    /**
+     * Escapes an XPath string to prevent injection.
+     * Handles strings containing both single and double quotes by using concat().
+     *
+     * @param value the string to escape
+     * @return properly escaped XPath string
+     */
+    private String escapeXPathString(String value) {
+        if (!value.contains("'")) {
+            return "'" + value + "'";
+        } else if (!value.contains("\"")) {
+            return "\"" + value + "\"";
+        } else {
+            // String contains both quotes, use concat()
+            StringBuilder result = new StringBuilder("concat(");
+            String[] parts = value.split("'");
+            for (int i = 0; i < parts.length; i++) {
+                if (i > 0) {
+                    result.append(", \"'\", ");
+                }
+                if (!parts[i].isEmpty()) {
+                    result.append("'").append(parts[i]).append("'");
+                }
+            }
+            if (value.endsWith("'")) {
+                result.append(", \"'\"");
+            }
+            result.append(")");
+            return result.toString();
+        }
     }
 
     public FileChooser getFileChooser(Runnable callback) {

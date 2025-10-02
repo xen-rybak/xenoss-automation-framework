@@ -1,10 +1,12 @@
 package io.xenoss;
 
+import io.xenoss.backend.client.BaseClient;
 import io.xenoss.config.ConfigurationManager;
 import io.xenoss.telemetry.TelemetryConsoleLogger;
 import io.xenoss.telemetry.server.TestReporterHttpServer;
 import lombok.extern.slf4j.Slf4j;
 import org.testng.ITestContext;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
@@ -19,6 +21,8 @@ public class BaseBeTest extends BaseTest {
         if (ConfigurationManager.getConfig()
                                 .getStartTelemetryServer()) {
             TestReporterHttpServer.start();
+            // Start telemetry monitoring for HTTP client metrics
+            BaseClient.startTelemetryMonitoring();
         } else {
             log.info("Telemetry server is disabled in the config. Using console logging only");
         }
@@ -30,6 +34,9 @@ public class BaseBeTest extends BaseTest {
     public static void shutdownTelemetryServer() {
         log.info("Test suite finished, shutting down telemetry servers...");
         try {
+            // Stop telemetry monitoring thread
+            BaseClient.stopTelemetryMonitoring();
+            // Stop HTTP/WebSocket servers
             TestReporterHttpServer.stopServers();
         } catch (Exception e) {
             log.warn("Error during telemetry server shutdown", e);
@@ -44,5 +51,13 @@ public class BaseBeTest extends BaseTest {
         context.getCurrentXmlTest()
                .getSuite()
                .setPreserveOrder(false);
+    }
+
+    @AfterClass(alwaysRun = true)
+    public void cleanupThreadLocalResources() {
+        // Clean up BaseClient ThreadLocal variables to prevent memory leaks
+        // This is critical because TestNG uses thread pools
+        BaseClient.cleanupStaticThreadLocals();
+        log.debug("Cleaned up ThreadLocal resources for current thread");
     }
 }

@@ -1,5 +1,7 @@
 package io.xenoss.config;
 
+import io.xenoss.exceptions.ConfigurationException;
+
 public class ConfigInstance {
     private final ConfigEntity configEntity;
 
@@ -59,8 +61,8 @@ public class ConfigInstance {
                                     .get(environment);
 
         if(envConfig == null) {
-            throw new RuntimeException(String.format(
-                    "Configuration issue: environment config is not found for '%s'. Check config.yaml",
+            throw new ConfigurationException(String.format(
+                    "Environment configuration not found for '%s'. Check testConfig.yaml",
                     environment));
         }
         return envConfig;
