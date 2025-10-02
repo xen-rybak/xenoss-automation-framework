@@ -2,7 +2,7 @@ dependencies {
     annotationProcessor(libs.lombok)
 
     // Core dependency
-    api project(':framework:core')
+    api project(':core')
 
     // FE-specific dependencies
     api(libs.playwright)

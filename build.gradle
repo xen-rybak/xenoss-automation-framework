@@ -47,14 +47,14 @@ subprojects {
     // Configure Checkstyle
     checkstyle {
         toolVersion = libs.versions.checkstyle.get()
-        configFile = rootProject.file('config/checkstyle/checkstyle.xml')
+        configFile = rootProject.file('framework/config/checkstyle/checkstyle.xml')
         ignoreFailures = false
     }
 
     // Configure PMD
     pmd {
         toolVersion = libs.versions.pmd.get()
-        ruleSetFiles = files(rootProject.file('config/pmd/ruleset.xml'))
+        ruleSetFiles = files(rootProject.file('framework/config/pmd/ruleset.xml'))
         ignoreFailures = false
     }
 
@@ -63,7 +63,7 @@ subprojects {
         toolVersion = libs.versions.spotbugsTool.get()
         effort = Effort.MAX
         ignoreFailures = false
-        excludeFilter = rootProject.file('config/spotbugs/excludeFilter.xml')
+        excludeFilter = rootProject.file('framework/config/spotbugs/excludeFilter.xml')
     }
 
     // Configure reports for plugin tasks
