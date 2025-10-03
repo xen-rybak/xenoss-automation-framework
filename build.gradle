@@ -104,4 +104,54 @@ subprojects {
 tasks.register('cleanAll') {
     dependsOn subprojects.collect { it.tasks.clean }
     description = 'Clean all subprojects'
+    group = 'build'
+}
+
+// Quality check tasks
+tasks.register('checkstyleAll') {
+    dependsOn subprojects.collect { it.tasks.matching { it.name.startsWith('checkstyle') } }
+    description = 'Run Checkstyle on all subprojects'
+    group = 'verification'
+}
+
+tasks.register('pmdAll') {
+    dependsOn subprojects.collect { it.tasks.matching { it.name.startsWith('pmd') } }
+    description = 'Run PMD on all subprojects'
+    group = 'verification'
+}
+
+tasks.register('spotbugsAll') {
+    dependsOn subprojects.collect { it.tasks.matching { it.name.startsWith('spotbugs') } }
+    description = 'Run SpotBugs on all subprojects'
+    group = 'verification'
+}
+
+tasks.register('qualityCheckAll') {
+    dependsOn 'checkstyleAll', 'pmdAll', 'spotbugsAll'
+    description = 'Run all quality checks (Checkstyle, PMD, SpotBugs) on all subprojects'
+    group = 'verification'
+}
+
+tasks.register('qualityReports') {
+    description = 'Print paths to all quality check reports'
+    group = 'verification'
+    doLast {
+        println '\n📊 Quality Check Reports:'
+        println '=' * 80
+        subprojects.each { subproject ->
+            def reportsDir = subproject.layout.buildDirectory.dir('reports').get().asFile
+            if (reportsDir.exists()) {
+                println "\n${subproject.name}:"
+                ['checkstyle', 'pmd', 'spotbugs'].each { tool ->
+                    def toolDir = new File(reportsDir, tool)
+                    if (toolDir.exists()) {
+                        toolDir.listFiles()?.findAll { it.name.endsWith('.html') }?.each {
+                            println "  ${tool}: file://${it.absolutePath}"
+                        }
+                    }
+                }
+            }
+        }
+        println '=' * 80
+    }
 }

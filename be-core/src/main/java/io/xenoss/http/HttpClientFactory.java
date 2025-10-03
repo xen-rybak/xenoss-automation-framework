@@ -3,6 +3,7 @@ package io.xenoss.http;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import io.xenoss.config.ConfigurationManager;
 import io.xenoss.telemetry.HttpMetricsInterceptor;
 import io.xenoss.telemetry.ConnectionEventListener;
 import lombok.Getter;
@@ -16,15 +17,19 @@ import java.util.concurrent.TimeUnit;
 /**
  * Factory class for creating and configuring OkHttpClient instances and mappers for HTTP requests.
  * Provides utility methods for building clients and request specifications.
+ * Configuration values are loaded from testConfig.yaml and can be overridden via system properties.
  */
 @Slf4j
 public class HttpClientFactory {
-    /** Maximum number of threads for the connection pool. */
-    public static final int MAX_THREADS = 100;
-    /** Timeout for connections, reads, and writes (in seconds). */
-    private static final int TIMEOUT_SECONDS = 30;
-    /** Keep-alive duration for connections (in seconds). */
-    private static final int KEEP_ALIVE_SECONDS = 30;
+    /** Maximum number of threads for the connection pool (configurable). */
+    public static final int MAX_THREADS = ConfigurationManager.getConfig()
+                                                              .getHttpConnectionPoolSize();
+    /** Timeout for connections, reads, and writes (in seconds, configurable). */
+    private static final int TIMEOUT_SECONDS = ConfigurationManager.getConfig()
+                                                                   .getHttpTimeoutSeconds();
+    /** Keep-alive duration for connections (in seconds, configurable). */
+    private static final int KEEP_ALIVE_SECONDS = ConfigurationManager.getConfig()
+                                                                      .getHttpKeepAliveSeconds();
 
     /** Shared connection pool for all OkHttpClient instances. */
     private static final ConnectionPool connectionPool = new ConnectionPool(

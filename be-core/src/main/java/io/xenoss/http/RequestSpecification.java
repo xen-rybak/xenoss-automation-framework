@@ -253,7 +253,8 @@ public class RequestSpecification {
 
         @Override
         public RequestSpecification queryParams(Map<String, String> params) {
-            BodyRequestSpecification spec = new BodyRequestSpecification(httpClient, objectMapper, defaultHeaders, baseUrl, bodyObject);
+            BodyRequestSpecification spec = new BodyRequestSpecification(httpClient, objectMapper,
+                    defaultHeaders, baseUrl, bodyObject);
             spec.contentType = this.contentType;
             spec.urlEncodingEnabled = this.urlEncodingEnabled;
             spec.followRedirects = this.followRedirects;
@@ -334,7 +335,8 @@ public class RequestSpecification {
         
         @Override
         public RequestSpecification queryParams(Map<String, String> params) {
-            FileRequestSpecification spec = new FileRequestSpecification(httpClient, objectMapper, defaultHeaders, baseUrl, file);
+            FileRequestSpecification spec = new FileRequestSpecification(httpClient, objectMapper,
+                    defaultHeaders, baseUrl, file);
             spec.contentType = this.contentType;
             spec.urlEncodingEnabled = this.urlEncodingEnabled;
             spec.followRedirects = this.followRedirects;

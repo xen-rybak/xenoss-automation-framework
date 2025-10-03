@@ -21,7 +21,8 @@ public class ConnectionEventListener extends EventListener {
     }
     
     @Override
-    public void connectEnd(@NotNull Call call, @NotNull InetSocketAddress inetSocketAddress, @NotNull Proxy proxy, @Nullable Protocol protocol) {
+    public void connectEnd(@NotNull Call call, @NotNull InetSocketAddress inetSocketAddress,
+                           @NotNull Proxy proxy, @Nullable Protocol protocol) {
         log.debug("New connection established to {}", inetSocketAddress);
         ConnectionPoolMetrics.onConnectionCreated();
     }

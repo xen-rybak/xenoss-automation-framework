@@ -24,6 +24,7 @@ public class TestReporterHttpServer {
     private static TelemetryWebSocketServer wsServer;
     private static HttpServer httpServer;
     private static volatile boolean serversStarted = false;
+    private static Thread shutdownHook = null;
 
     public static synchronized void start() throws IOException {
         if (serversStarted) {
@@ -48,11 +49,15 @@ public class TestReporterHttpServer {
             log.info("WebSocket server started on port {}", WS_PORT);
             log.info("Please go to http://localhost:8080/watch for detailed tests statistics");
 
-            // Add shutdown hook as safety net
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                log.info("JVM shutdown detected, stopping telemetry servers...");
-                stopServers();
-            }));
+            // Add shutdown hook only once as safety net
+            if (shutdownHook == null) {
+                shutdownHook = new Thread(() -> {
+                    log.info("JVM shutdown detected, stopping telemetry servers...");
+                    stopServers();
+                }, "TelemetryServerShutdownHook");
+                Runtime.getRuntime()
+                       .addShutdownHook(shutdownHook);
+            }
 
         } catch (Exception e) {
             log.error("Failed to start telemetry servers", e);

@@ -51,7 +51,8 @@ public class ActionTimer {
     }
 
     @SneakyThrows
-    public static <T> T waitFor(Supplier<T> action, Function<T, Boolean> condition, int timeoutSeconds, boolean throwIfError) {
+    public static <T> T waitFor(Supplier<T> action, Function<T, Boolean> condition,
+                                 int timeoutSeconds, boolean throwIfError) {
         log.debug("Starting wait for condition...");
 
         T actionResult = null;
@@ -75,7 +76,9 @@ public class ActionTimer {
         } while (!timer.isExpired());
 
         if (throwIfError) {
-            throw new TestException(String.format("%s seconds timer is expired, condition is not satisfied", timeoutSeconds));
+            String message = String.format("%s seconds timer is expired, condition is not satisfied",
+                    timeoutSeconds);
+            throw new TestException(message);
         } else {
             return actionResult;
         }

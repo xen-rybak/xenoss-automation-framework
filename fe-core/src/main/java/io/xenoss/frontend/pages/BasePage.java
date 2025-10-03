@@ -13,6 +13,9 @@ public abstract class BasePage implements ContainElements {
     protected final Page playwrightPage;
 
     public BasePage(Page playwrightPage) {
+        if (playwrightPage == null) {
+            throw new IllegalArgumentException("playwrightPage cannot be null");
+        }
         this.playwrightPage = playwrightPage;
     }
 

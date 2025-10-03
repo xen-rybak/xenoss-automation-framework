@@ -8,6 +8,12 @@ public abstract class BaseSite {
     protected final String homePageUrl;
 
     public BaseSite(Page playwrightPage, String homePageUrl) {
+        if (playwrightPage == null) {
+            throw new IllegalArgumentException("playwrightPage cannot be null");
+        }
+        if (homePageUrl == null || homePageUrl.trim().isEmpty()) {
+            throw new IllegalArgumentException("homePageUrl cannot be null or empty");
+        }
         this.playwrightPage = playwrightPage;
         this.homePageUrl = homePageUrl;
     }

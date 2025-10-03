@@ -1,29 +1,37 @@
 [versions]
 javaVersion = "21"
+# HTTP Client
 okhttp = "4.12.0"
-testng = "7.10.2"
+# Testing
+testng = "7.11.0"
+assertj = "3.27.5"
+awailability = "4.2.1"
+# Logging
 slf4j = "2.0.13"
 logback = "1.5.18"
 # Development Tools
-lombok = "1.18.32"
+lombok = "1.18.42"
 lombok-plugin = "8.6"
-checkstyle = "10.18.2"
-pmd = "7.6.0"
-spotbugsTool = "4.9.0"
+# Code Quality Tools
+checkstyle = "11.1.0"
+pmd = "7.14.0"
+spotbugsTool = "4.9.6"
 spotbugs-plugin = "6.0.7"
 test-retry = "1.5.8"
-assertj = "3.25.3"
+# Data Handling
 yaml = "2.2"
 gson = "2.10.1"
 jsoup = "1.18.1"
-jackson = "2.17.2"
-guava = "33.2.1-jre"
-playwright = "1.43.0"
-awailability = "4.2.1"
+jackson = "2.20.0"
+jackson-annotations = "2.20"
+guava = "33.5.0-jre"
+commons-lang3 = "3.18.0"
+# UI Testing
+playwright = "1.55.0"
+# Reporting
 reportportal-agent = "5.4.2"
 reportportal-logger = "5.2.2"
 java-websocket = "1.6.0"
-commons-lang3 = "3.18.0"
 
 [plugins]
 lombok = { id = "io.freefair.lombok", version.ref = "lombok-plugin" }
@@ -38,7 +46,7 @@ okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhtt
 okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
 jackson-core = { group = "com.fasterxml.jackson.core", name = "jackson-core", version.ref = "jackson" }
 jackson-databind = { group = "com.fasterxml.jackson.core", name = "jackson-databind", version.ref = "jackson" }
-jackson-annotations = { group = "com.fasterxml.jackson.core", name = "jackson-annotations", version.ref = "jackson" }
+jackson-annotations = { group = "com.fasterxml.jackson.core", name = "jackson-annotations", version.ref = "jackson-annotations" }
 jackson-dataformat-xml = { group = "com.fasterxml.jackson.dataformat", name = "jackson-dataformat-xml", version.ref = "jackson" }
 testng = { group = "org.testng", name = "testng", version.ref = "testng" }
 slf4j-api = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }

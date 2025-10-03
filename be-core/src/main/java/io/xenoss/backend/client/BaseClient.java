@@ -40,7 +40,8 @@ public abstract class BaseClient {
     // Config
     private static final boolean SILENT = ConfigurationManager.getConfig()
                                                               .getIsSilent();
-    private static final String RESULTS_DIR_PATH = String.format("build/reports/rawTestsOutput/%s", RandomUtils.currentTimestamp());
+    private static final String RESULTS_DIR_PATH = String.format("build/reports/rawTestsOutput/%s",
+            RandomUtils.currentTimestamp());
 
     // Logging (ThreadLocal variables that need cleanup)
     private static final ThreadLocal<String> prevRequest = ThreadLocal.withInitial(() -> null);
@@ -275,20 +276,23 @@ public abstract class BaseClient {
                 : (body instanceof String) ? (String) body : SerializationUtils.toJson(body);
 
         if (!SILENT) {
+            String urlWithParams = queryParams == null || queryParams.isEmpty()
+                    ? url
+                    : String.format("%s?%s", url, queryParams.entrySet()
+                            .stream()
+                            .map(entry -> String.format("%s=%s", entry.getKey(), entry.getValue()))
+                            .collect(Collectors.joining("&")));
+
+            String headersStr = String.join("\n\t", headers.asList()
+                    .stream()
+                    .map(header -> String.format("%s: %s", header.getName(), header.getValue()))
+                    .toList());
+
             var requestMessage = String.format("Sending POST to %s with headers:\n\t%s\nand %s body:\n%s",
-                    queryParams == null || queryParams.isEmpty()
-                            ? url
-                            : String.format("%s?%s", url, queryParams.entrySet()
-                                                                     .stream()
-                                                                     .map(entry -> String.format("%s=%s", entry.getKey(), entry.getValue()))
-                                                                     .collect(Collectors.joining("&"))),
-                    String.join("\n\t", headers.asList()
-                                               .stream()
-                                               .map(header -> String.format("%s: %s", header.getName(), header.getValue()))
-                                               .toList()),
-                    gzip ? "gzipped " : "",
-                    bodyString);
-            log.info(requestMessage.equalsIgnoreCase(prevRequest.get()) ? "Repeating previous request..." : requestMessage);
+                    urlWithParams, headersStr, gzip ? "gzipped " : "", bodyString);
+
+            log.info(requestMessage.equalsIgnoreCase(prevRequest.get())
+                    ? "Repeating previous request..." : requestMessage);
             prevRequest.set(requestMessage);
         }
 
@@ -367,13 +371,14 @@ public abstract class BaseClient {
 
             if (!SILENT) {
                 // Log each parameter and its value(s)
-                log.info("Sending GET to {} with params:\n{}", url,
-                        filteredParams.entrySet()
-                                      .stream()
-                                      .map(entry -> String.format("%s=%s", entry.getKey(), Arrays.stream(entry.getValue())
-                                                                                                 .map(Object::toString)
-                                                                                                 .collect(Collectors.joining(", "))))
-                                      .collect(Collectors.joining("\n")));
+                String paramsStr = filteredParams.entrySet()
+                        .stream()
+                        .map(entry -> String.format("%s=%s", entry.getKey(),
+                                Arrays.stream(entry.getValue())
+                                        .map(Object::toString)
+                                        .collect(Collectors.joining(", "))))
+                        .collect(Collectors.joining("\n"));
+                log.info("Sending GET to {} with params:\n{}", url, paramsStr);
             }
             // Add each parameter to the request specification
             for (var param : filteredParams.entrySet()) {
@@ -444,16 +449,18 @@ public abstract class BaseClient {
 
         if (!SILENT) {
             var statusCode = extractedResponse.getStatusCode();
-            if (logMessage.equalsIgnoreCase(prevResponseMessage.get()) && statusCode == prevResponseStatus.get()) {
+            boolean sameResult = logMessage.equalsIgnoreCase(prevResponseMessage.get())
+                    && statusCode == prevResponseStatus.get();
+            if (sameResult) {
                 log.info("Same result");
             } else {
                 log.info("Response status: {}", statusCode);
                 if (logMessage.length() > 3000) {
                     var fileExtension = getFileExtension(contentType);
 
-                    var path = FileUtils.printToFile(
-                            String.format("%s/%s.%s", RESULTS_DIR_PATH, RandomUtils.currentTimestampWithMilliseconds(), fileExtension),
-                            logMessage);
+                    String filename = String.format("%s/%s.%s", RESULTS_DIR_PATH,
+                            RandomUtils.currentTimestampWithMilliseconds(), fileExtension);
+                    var path = FileUtils.printToFile(filename, logMessage);
                     log.info("Response is too long. Storing to file:\n{}", path);
                 } else {
                     log.info(logMessage);

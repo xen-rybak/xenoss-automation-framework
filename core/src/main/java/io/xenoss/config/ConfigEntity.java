@@ -21,6 +21,14 @@ public class ConfigEntity {
     Integer telemetryHttpPort;
     @Getter
     Integer telemetryWsPort;
+    @Getter
+    Integer telemetryUpdateIntervalMs;
+    @Getter
+    Integer httpConnectionPoolSize;
+    @Getter
+    Integer httpTimeoutSeconds;
+    @Getter
+    Integer httpKeepAliveSeconds;
     Map<String, EnvironmentConfig> environments;
 
     public Map<String, EnvironmentConfig> getEnvironments() {

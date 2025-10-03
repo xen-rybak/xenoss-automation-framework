@@ -17,8 +17,9 @@ public class RandomUtils {
                                                                         .withZone(ZoneId.systemDefault());
 
     private static final String PATTERN_WITH_MILLISECONDS_FORMAT = PATTERN_FORMAT + "_SSS";
-    private static final DateTimeFormatter FORMATTER_WITH_MILLISECONDS = DateTimeFormatter.ofPattern(PATTERN_WITH_MILLISECONDS_FORMAT)
-                                                                                          .withZone(ZoneId.systemDefault());
+    private static final DateTimeFormatter FORMATTER_WITH_MILLISECONDS =
+            DateTimeFormatter.ofPattern(PATTERN_WITH_MILLISECONDS_FORMAT)
+                    .withZone(ZoneId.systemDefault());
 
     private static final Random SHARED_RANDOM = new Random();
 

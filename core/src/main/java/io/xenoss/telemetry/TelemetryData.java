@@ -1,5 +1,7 @@
 package io.xenoss.telemetry;
 
+import io.xenoss.config.ConfigurationManager;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
@@ -17,15 +19,20 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * - ConcurrentHashMap for systemMetrics and testMetrics (thread-safe without extra locks)
  * - ReadWriteLock for protecting the data snapshot to allow concurrent reads
  * - AtomicLong for rate limiting timestamp
+ * <p>
+ * Configuration values are loaded from testConfig.yaml and can be overridden via system properties.
  */
 public class TelemetryData {
     private static final long START_TIME = System.currentTimeMillis();
-    private static final String START_TIME_FORMATTED = LocalDateTime.now()
-                                                                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    private static final String START_TIME_FORMATTED =
+            LocalDateTime.now()
+                         .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
-    // Rate limiting for updates during heavy load using atomic variable
+    // Rate limiting for updates during heavy load using atomic variable (configurable)
     private static final AtomicLong lastUpdateTime = new AtomicLong(0);
-    private static final long MIN_UPDATE_INTERVAL_MS = 100; // Minimum 100ms between updates
+    private static final long MIN_UPDATE_INTERVAL_MS =
+            ConfigurationManager.getConfig()
+                                .getTelemetryUpdateIntervalMs();
 
     // ConcurrentHashMap provides thread-safety without additional synchronization
     private static final Map<String, String> systemMetrics = new ConcurrentHashMap<>();
